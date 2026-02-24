@@ -81,14 +81,3 @@ with open('wsi_raw_graph_features.pkl', 'rb') as f:
 
 with open('wsi_raw_cell_graphs.pkl', 'rb') as f:
     cell_graph_dict = pickle.load(f)
-
-# %%
-print(features_dict['WSI_000239'].shape, features_dict['WSI_000242'].shape)
-
-# %%
-cell_graph_dict['WSI_000239']
-
-# %%
-cell_graph_dict['WSI_000242']
-
-
