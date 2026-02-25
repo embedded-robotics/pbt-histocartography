@@ -32,7 +32,7 @@ wsi_names = os.listdir(raw_wsi_dir)
 print(f"Found {len(wsi_names)} WSIs in {raw_wsi_dir}.")
 
 # %%
-wsi_resolution_level = 2
+wsi_resolution_level = 1 # Change this to adjust the resolution level for processing (0 is highest resolution)
 features_dict = {}
 cell_graph_dict = {}
 
@@ -40,8 +40,7 @@ for i in tqdm(range(len(wsi_names)), desc="Processing"):
     wsi_name = wsi_names[i]
     print(f"Processing {wsi_name} ({i+1}/{len(wsi_names)})...")
     wsi_path = os.path.join(raw_wsi_dir, wsi_name)
-    wsi_graph_path = os.path.join(wsi_graph_dir, f"{wsi_name.split('.')[0]}_Graph.png")
-
+    wsi_graph_path = os.path.join(wsi_graph_dir, f"{wsi_name}_Graph.png")
     try:
         slide = openslide.OpenSlide(wsi_path)
         svs_image = slide.read_region((0, 0), wsi_resolution_level, slide.level_dimensions[wsi_resolution_level]).convert('RGB')
@@ -49,11 +48,11 @@ for i in tqdm(range(len(wsi_names)), desc="Processing"):
         
         nuclei_map, nuclei_centers = nuclei_detector.process(svs_image_np)
         features = feature_extractor.process(svs_image_np, nuclei_map)
-        features_dict[wsi_name.split('.')[0]] = features.detach().cpu().numpy()  # Store features for later use
+        features_dict[wsi_name] = features.detach().cpu().numpy()  # Store features for later use
         
         if len(nuclei_centers) > 5:
             cell_graph = knn_graph_builder.process(nuclei_map, features)
-            cell_graph_dict[wsi_name.split('.')[0]] = cell_graph  # Store cell graph for later use
+            cell_graph_dict[wsi_name] = cell_graph  # Store cell graph for later use
             
             visualizer = OverlayGraphVisualization(instance_visualizer=InstanceImageVisualization(instance_style="filled+outline"))
             viz_cg = visualizer.process(canvas=svs_image_np, graph=cell_graph, instance_map=nuclei_map)
@@ -66,7 +65,10 @@ for i in tqdm(range(len(wsi_names)), desc="Processing"):
     except Exception as e:
         print(f"!!!!!!!!!!!Error processing {wsi_name} ({i+1}/{len(wsi_names)}): {e}!!!!!!!!!")
 
+# %% [markdown]
 # Save the feature_dict and cell_graph_dict as pickle file
+
+# %%
 with open('wsi_raw_graph_features_tcga.pkl', 'wb') as f:
     pickle.dump(features_dict, f)
 
