@@ -42,31 +42,31 @@ for i in tqdm(range(len(wsi_names)), desc="Processing"):
     wsi_path = os.path.join(raw_wsi_dir, wsi_name)
     wsi_graph_path = os.path.join(wsi_graph_dir, f"{wsi_name.split('.')[0]}_Graph.png")
 
-    slide = openslide.OpenSlide(wsi_path)
-    svs_image = slide.read_region((0, 0), wsi_resolution_level, slide.level_dimensions[wsi_resolution_level]).convert('RGB')
-    svs_image_np = np.array(svs_image)
-    
-    nuclei_map, nuclei_centers = nuclei_detector.process(svs_image_np)
-    features = feature_extractor.process(svs_image_np, nuclei_map)
-    features_dict[wsi_name.split('.')[0]] = features.detach().cpu().numpy()  # Store features for later use
-    
-    if len(nuclei_centers) > 5:
-        cell_graph = knn_graph_builder.process(nuclei_map, features)
-        cell_graph_dict[wsi_name.split('.')[0]] = cell_graph  # Store cell graph for later use
+    try:
+        slide = openslide.OpenSlide(wsi_path)
+        svs_image = slide.read_region((0, 0), wsi_resolution_level, slide.level_dimensions[wsi_resolution_level]).convert('RGB')
+        svs_image_np = np.array(svs_image)
         
-        visualizer = OverlayGraphVisualization(instance_visualizer=InstanceImageVisualization(instance_style="filled+outline"))
-        viz_cg = visualizer.process(canvas=svs_image_np, graph=cell_graph, instance_map=nuclei_map)
-        viz_cg.save(wsi_graph_path)
-        print(f"Processed {wsi_name} and saved graph visualization to {wsi_graph_path}.")
-    else:
-        print(f"Less than 5 nuclei detected in {wsi_name}. Skipping graph construction and visualization.")
+        nuclei_map, nuclei_centers = nuclei_detector.process(svs_image_np)
+        features = feature_extractor.process(svs_image_np, nuclei_map)
+        features_dict[wsi_name.split('.')[0]] = features.detach().cpu().numpy()  # Store features for later use
+        
+        if len(nuclei_centers) > 5:
+            cell_graph = knn_graph_builder.process(nuclei_map, features)
+            cell_graph_dict[wsi_name.split('.')[0]] = cell_graph  # Store cell graph for later use
+            
+            visualizer = OverlayGraphVisualization(instance_visualizer=InstanceImageVisualization(instance_style="filled+outline"))
+            viz_cg = visualizer.process(canvas=svs_image_np, graph=cell_graph, instance_map=nuclei_map)
+            viz_cg.save(wsi_graph_path)
+            print(f"Processed {wsi_name} and saved graph visualization to {wsi_graph_path}.")
+        else:
+            print(f"Less than 5 nuclei detected in {wsi_name}. Skipping graph construction and visualization.")
 
-    slide.close()
+        slide.close()
+    except Exception as e:
+        print(f"!!!!!!!!!!!Error processing {wsi_name} ({i+1}/{len(wsi_names)}): {e}!!!!!!!!!")
 
-# %% [markdown]
 # Save the feature_dict and cell_graph_dict as pickle file
-
-# %%
 with open('wsi_raw_graph_features_tcga.pkl', 'wb') as f:
     pickle.dump(features_dict, f)
 
