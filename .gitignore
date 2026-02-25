@@ -4,3 +4,4 @@ wsi_graphs/*
 wsi_rawa/*
 *.pkl
 *.out
+tcga_download/*

@@ -24,14 +24,15 @@ knn_graph_builder = KNNGraphBuilder(k=5, thresh=50, add_loc_feats=True)
 # Processing files one by one
 
 # %%
-raw_wsi_dir = "/data/jy26539/data/wsi_raw"
-wsi_graph_dir = "wsi_graphs"
+# raw_wsi_dir = "/data/jy26539/data/wsi_raw"
+raw_wsi_dir = "/data/mn27889/pbt-histocartography/tcga_download/tcga_gbm_lgg_pedi"
+wsi_graph_dir = "wsi_graphs_tcga"
 os.makedirs(wsi_graph_dir, exist_ok=True)
 wsi_names = os.listdir(raw_wsi_dir)
 print(f"Found {len(wsi_names)} WSIs in {raw_wsi_dir}.")
 
 # %%
-wsi_resolution_level = 1
+wsi_resolution_level = 2
 features_dict = {}
 cell_graph_dict = {}
 
@@ -66,18 +67,8 @@ for i in tqdm(range(len(wsi_names)), desc="Processing"):
 # Save the feature_dict and cell_graph_dict as pickle file
 
 # %%
-with open('wsi_raw_graph_features.pkl', 'wb') as f:
+with open('wsi_raw_graph_features_tcga.pkl', 'wb') as f:
     pickle.dump(features_dict, f)
 
-with open('wsi_raw_cell_graphs.pkl', 'wb') as f:
+with open('wsi_raw_cell_graphs_tcga.pkl', 'wb') as f:
     pickle.dump(cell_graph_dict, f)
-
-# %% [markdown]
-# Read the feature_dict and cell_graph_dict
-
-# %%
-with open('wsi_raw_graph_features.pkl', 'rb') as f:
-    features_dict = pickle.load(f)
-
-with open('wsi_raw_cell_graphs.pkl', 'rb') as f:
-    cell_graph_dict = pickle.load(f)
