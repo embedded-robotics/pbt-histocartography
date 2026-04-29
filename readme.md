@@ -23,3 +23,5 @@ Histocartography setup for Pediatric Brain Tumor
 15. pip install seaborn
 16. histocartography/histocartography/utils/draw_utils.py:7
     - plt.style.use("seaborn-whitegrid") -> plt.style.use("seaborn-v0_8-whitegrid")
+17. histocartography/histocartography/preprocessing/nuclei_extraction.py: [Change datatype from uint16 to uint32 to support the image labels for high resolution WSIs]
+def process_instance(pred_map: np.ndarray, output_dtype: str = "uint16") -> def process_instance(pred_map: np.ndarray, output_dtype: str = "uint32"):
