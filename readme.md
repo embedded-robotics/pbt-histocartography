@@ -25,3 +25,6 @@ Histocartography setup for Pediatric Brain Tumor
     - plt.style.use("seaborn-whitegrid") -> plt.style.use("seaborn-v0_8-whitegrid")
 17. histocartography/histocartography/preprocessing/nuclei_extraction.py: [Change datatype from uint16 to uint32 to support the image labels for high resolution WSIs]
 def process_instance(pred_map: np.ndarray, output_dtype: str = "uint16") -> def process_instance(pred_map: np.ndarray, output_dtype: str = "uint32"):
+
+18. histocartography/histocartography/preprocessing/graph_builders.py [Don't Convert kneighbors_graph() to .toarray()]
+kneighbors_graph(centroids,self.k,mode="distance",include_self=False, metric="euclidean").toarray() -> kneighbors_graph(centroids,self.k,mode="distance",include_self=False, metric="euclidean")
